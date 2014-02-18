@@ -128,7 +128,7 @@ struct cpufreq_interactive_tunables {
 	 */
 #define DEFAULT_TIMER_SLACK (4 * DEFAULT_TIMER_RATE)
 	int timer_slack_val;
-	bool io_is_busy = true;
+	bool io_is_busy;
 
 	/* scheduler input related flags */
 	bool use_sched_load;
@@ -1606,6 +1606,7 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 		ppol->governor_enabled = 1;
 		up_write(&ppol->enable_sem);
 		ppol->reject_notification = false;
+		tunables->io_is_busy = true;
 
 		mutex_unlock(&gov_lock);
 		break;
