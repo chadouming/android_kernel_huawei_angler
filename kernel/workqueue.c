@@ -772,15 +772,9 @@ static bool need_to_manage_workers(struct worker_pool *pool)
 static bool too_many_workers(struct worker_pool *pool)
 {
 	bool managing = mutex_is_locked(&pool->manager_arb);
+
 	int nr_idle = pool->nr_idle + managing; /* manager is considered idle */
 	int nr_busy = pool->nr_workers - nr_idle;
-
-	/*
-	 * nr_idle and idle_list may disagree if idle rebinding is in
-	 * progress.  Never return %true if idle_list is empty.
-	 */
-	if (list_empty(&pool->idle_list))
-		return false;
 
 	return nr_idle > 2 && (nr_idle - 2) * MAX_IDLE_WORKERS_RATIO >= nr_busy;
 }
