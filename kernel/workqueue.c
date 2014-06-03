@@ -3611,11 +3611,10 @@ static void put_unbound_pool(struct worker_pool *pool)
 		return;
 
 	/* sanity checks */
-	if (WARN_ON(!(pool->flags & POOL_DISASSOCIATED)) ||
+	if (WARN_ON(!(pool->cpu < 0)) ||
 	    WARN_ON(!list_empty(&pool->worklist)))
 		return;
 
-	/* release id and unhash */
 	if (pool->id >= 0)
 		idr_remove(&worker_pool_idr, pool->id);
 	hash_del(&pool->hash_node);
