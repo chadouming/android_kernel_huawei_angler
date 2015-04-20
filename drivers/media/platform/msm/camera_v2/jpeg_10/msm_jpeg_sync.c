@@ -722,6 +722,9 @@ int __msm_jpeg_open(struct msm_jpeg_device *pgmn_dev)
 	if (pgmn_dev->open_count == 1)
 		pgmn_dev->state = MSM_JPEG_INIT;
 
+	if (pgmn_dev->open_count == 1)
+		pgmn_dev->state = MSM_JPEG_INIT;
+
 	msm_jpeg_core_irq_install(msm_jpeg_irq);
 	if (pgmn_dev->core_type == MSM_JPEG_CORE_CODEC)
 		core_irq = msm_jpeg_core_irq;
