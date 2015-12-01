@@ -30,8 +30,14 @@
 #define G10_MPI_INLINE_H
 
 #ifndef G10_MPI_INLINE_DECL
-#define G10_MPI_INLINE_DECL inline
+
+#if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__
+#define G10_MPI_INLINE_DECL extern inline __attribute__ ((__gnu_inline__))
+#else
+#define G10_MPI_INLINE_DECL extern inline
 #endif
+
+#endif //G10_MPI_INLINE_DECL
 
 G10_MPI_INLINE_DECL mpi_limb_t
 mpihelp_add_1(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
