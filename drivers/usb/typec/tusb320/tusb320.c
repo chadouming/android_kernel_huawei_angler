@@ -477,8 +477,8 @@ static void tusb320_wdog_work(struct work_struct *w)
 	if (di->clean_failded) {
 		pr_err("%s: clean interrupt mask\n", __func__);
 		ret = tusb320_int_clear();
-		if (ret < 0
-		    && di->clean_retry_count < TUSB320_IRQ_CLEAN_MAX_RETRY) {
+		if ((ret < 0)
+		    && (di->clean_retry_count < TUSB320_IRQ_CLEAN_MAX_RETRY)) {
 			pr_err("%s: clean interrupt mask error\n", __func__);
 			work = 1;
 			di->clean_retry_count++;

@@ -1026,7 +1026,7 @@ static inline int adreno_wait_reg_eq(unsigned int *cmds, unsigned int addr,
  * @adreno_dev:		Pointer to adreno device
  * @offset_name:	The register enum that is checked
  */
-static inline bool adreno_checkreg_off(struct adreno_device *adreno_dev,
+inline bool adreno_checkreg_off(struct adreno_device *adreno_dev,
 					enum adreno_regs offset_name)
 {
 	struct adreno_gpudev *gpudev = ADRENO_GPU_DEVICE(adreno_dev);
@@ -1045,7 +1045,7 @@ static inline bool adreno_checkreg_off(struct adreno_device *adreno_dev,
  * @offset_name:	The register enum that is to be read
  * @val:		Register value read is placed here
  */
-static inline void adreno_readreg(struct adreno_device *adreno_dev,
+inline void adreno_readreg(struct adreno_device *adreno_dev,
 				enum adreno_regs offset_name, unsigned int *val)
 {
 	struct adreno_gpudev *gpudev = ADRENO_GPU_DEVICE(adreno_dev);

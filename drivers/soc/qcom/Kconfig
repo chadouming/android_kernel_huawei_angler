@@ -645,7 +645,7 @@ config KERNEL_TEXT_MPU_PROT
 
 config STATE_NOTIFIER
         bool "State Notifier"
-	default n
+	default y
 
 source "drivers/soc/qcom/memshare/Kconfig"
 
