@@ -597,14 +597,14 @@ static inline void kgsl_process_add_stats(struct kgsl_process_private *priv,
 		priv->stats[type].max = priv->stats[type].cur;
 }
 
-inline void kgsl_regread(struct kgsl_device *device,
+static inline void kgsl_regread(struct kgsl_device *device,
 				unsigned int offsetwords,
 				unsigned int *value)
 {
 	device->ftbl->regread(device, offsetwords, value);
 }
 
-inline void kgsl_regwrite(struct kgsl_device *device,
+static inline void kgsl_regwrite(struct kgsl_device *device,
 				 unsigned int offsetwords,
 				 unsigned int value)
 {

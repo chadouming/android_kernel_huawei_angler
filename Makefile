@@ -351,7 +351,7 @@ AFLAGS_MODULE   = $(GRAPHITE)
 LDFLAGS_MODULE  = $(GRAPHITE)
 CFLAGS_KERNEL	= $(GRAPHITE) -fmodulo-sched -fmodulo-sched-allow-regmoves -ftree-loop-vectorize \
 			      -ftree-slp-vectorize -fvect-cost-model -fpredictive-commoning \
-			      -ftree-partial-pre -fgcse-after-reload -fgcse-lm -fgcse-sm -std=gnu89 \
+			      -ftree-partial-pre -fgcse-after-reload -fgcse-lm -fgcse-sm \
 			      -fsched-spec-load -ffast-math -fsingle-precision-constant
 
 AFLAGS_KERNEL	= $(GRAPHITE)
@@ -391,9 +391,9 @@ KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_CFLAGS   := $(GRAPHITE) -Wall -Wundef -Wstrict-prototypes \
 		   -fno-strict-aliasing -fno-common -Wno-trigraphs \
 		   -Werror-implicit-function-declaration \
-		   -Wno-format-security -Ofast \
+		   -Wno-format-security -Ofast -std=gnu89 \
 		   -fno-delete-null-pointer-checks\
-		   -std=gnu89 $(GEN_OPT_FLAGS)
+		   $(GEN_OPT_FLAGS)
 
 KBUILD_AFLAGS_KERNEL := $(GEN_OPT_FLAGS)
 KBUILD_CFLAGS_KERNEL := $(GEN_OPT_FLAGS)
@@ -594,7 +594,7 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS	+= -Ofast -fno-inline-functions \
+KBUILD_CFLAGS	+= -Ofast \
 		   -g0 -fmodulo-sched -fmodulo-sched-allow-regmoves \
 		   -fno-tree-vectorize -Wno-array-bounds -fivopts
 
