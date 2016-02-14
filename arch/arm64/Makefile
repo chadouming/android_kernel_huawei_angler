@@ -21,9 +21,10 @@ KBUILD_DEFCONFIG := defconfig
 
 ARM_ARCH_OPT := -mcpu=cortex-a57.cortex-a53 -mtune=cortex-a57.cortex-a53
 GEN_OPT_FLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a) \
- -Ofast \
+ -g0 \
  -DNDEBUG \
  -fomit-frame-pointer \
+ -funsafe-math-optimizations \
  -fmodulo-sched \
  -fmodulo-sched-allow-regmoves \
  -fivopts
