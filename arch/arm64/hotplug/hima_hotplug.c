@@ -31,7 +31,7 @@
 
 #define DEF_SAMPLING_MS                HZ * 5
 #define RESUME_SAMPLING_MS             HZ / 5
-#define START_DELAY_MS                 HZ * 50
+#define START_DELAY_MS                 HZ * 100
 
 #define DEFAULT_MIN_CPUS_ONLINE        1
 #define DEFAULT_MAX_CPUS_ONLINE        8
