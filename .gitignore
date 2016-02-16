@@ -97,5 +97,4 @@ x509.genkey
 #
 # Forget My kernel build script
 #
-
 build-kernel.sh

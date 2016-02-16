@@ -29,9 +29,9 @@
 #define HIMA_HOTPLUG_MAJOR_VERSION     2
 #define HIMA_HOTPLUG_MINOR_VERSION     0
 
-#define DEF_SAMPLING_MS                HZ * 5
+#define DEF_SAMPLING_MS                HZ * 10
 #define RESUME_SAMPLING_MS             HZ / 5
-#define START_DELAY_MS                 HZ * 100
+#define START_DELAY_MS                 10000
 
 #define DEFAULT_MIN_CPUS_ONLINE        1
 #define DEFAULT_MAX_CPUS_ONLINE        8
