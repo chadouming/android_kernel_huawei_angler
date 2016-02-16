@@ -487,7 +487,7 @@ static unsigned int convert_acm_sigs_to_uart(unsigned acm_sig)
 		uart_sig |= TIOCM_DTR;
 	// workaround for pre-SFN test
 	//if (acm_sig & SMD_ACM_CTRL_RTS)
-		uart_sig |= TIOCM_RTS;
+	uart_sig |= TIOCM_RTS;
 
 	return uart_sig;
 }
