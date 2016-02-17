@@ -365,6 +365,7 @@ GEN_OPT_FLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a) \
  -DNDEBUG \
  -fomit-frame-pointer \
  -fmodulo-sched \
+ -finline-functions \
  -fmodulo-sched-allow-regmoves \
  -fivopts
 
@@ -593,7 +594,12 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS	+= -Ofast -Wno-maybe-uninitialized
+KBUILD_CFLAGS	+= -Ofast \
+		   -g0 -fmodulo-sched -fmodulo-sched-allow-regmoves \
+		   -fno-tree-vectorize -Wno-array-bounds -fivopts
+
+KBUILD_CFLAGS += $(call cc-disable-warning,maybe-uninitialized)
+KBUILD_CFLAGS += $(call cc-disable-warning,array-bounds)
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
