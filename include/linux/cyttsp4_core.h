@@ -36,6 +36,7 @@
 #define _LINUX_CYTTSP4_CORE_H
 
 #include <linux/stringify.h>
+#include <linux/device.h>
 
 #define CYTTSP4_CORE_NAME "cyttsp4_core"
 
