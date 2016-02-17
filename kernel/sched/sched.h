@@ -5,6 +5,7 @@
 #include <linux/mutex.h>
 #include <linux/spinlock.h>
 #include <linux/stop_machine.h>
+#include <linux/jump_label.h>
 #include <linux/tick.h>
 #include <linux/slab.h>
 
