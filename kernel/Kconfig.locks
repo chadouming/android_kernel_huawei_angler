@@ -226,5 +226,5 @@ config ARCH_SUPPORTS_ATOMIC_RMW
 	bool
 
 config MUTEX_SPIN_ON_OWNER
-	def_bool y
+	bool
 	depends on SMP && !DEBUG_MUTEXES && ARCH_SUPPORTS_ATOMIC_RMW
