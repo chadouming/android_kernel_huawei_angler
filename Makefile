@@ -367,7 +367,8 @@ GEN_OPT_FLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a) \
  -fmodulo-sched \
  -finline-functions \
  -fmodulo-sched-allow-regmoves \
- -fivopts
+ -fivopts \
+ -Wno-misleading-indentation
 
 # Use USERINCLUDE when you must reference the UAPI directories only.
 USERINCLUDE    := \
