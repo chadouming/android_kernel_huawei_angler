@@ -26,16 +26,16 @@
 #include <linux/cpufreq.h>
 
 #define HIMA_HOTPLUG		       "hima_hotplug"
-#define HIMA_HOTPLUG_MAJOR_VERSION     3
+#define HIMA_HOTPLUG_MAJOR_VERSION     4
 #define HIMA_HOTPLUG_MINOR_VERSION     0
 
-#define DEF_SAMPLING_MS                HZ * 5
-#define RESUME_SAMPLING_MS             HZ / 5
+#define DEF_SAMPLING_MS                120
+#define RESUME_SAMPLING_MS             30
 #define START_DELAY_MS                 5000
 
-#define DEFAULT_MIN_CPUS_ONLINE        4
+#define DEFAULT_MIN_CPUS_ONLINE        2
 #define DEFAULT_MAX_CPUS_ONLINE        8
-#define DEFAULT_MIN_UP_TIME            2000
+#define DEFAULT_MIN_UP_TIME            2500
 
 #define DEFAULT_NR_FSHIFT              3
 #define CAPACITY_RESERVE               50
@@ -48,7 +48,7 @@
 
 #define CPU_NR_THRESHOLD	       ((THREAD_CAPACITY << 1) - (THREAD_CAPACITY >> 1))
 
-#define MULT_FACTOR                    11
+#define MULT_FACTOR                    10
 #define DIV_FACTOR                     100000
 
 static struct delayed_work hima_hotplug_work;
@@ -77,6 +77,10 @@ static unsigned int def_sampling_ms = DEF_SAMPLING_MS;
 static unsigned int nr_fshift = DEFAULT_NR_FSHIFT;
 
 static unsigned int nr_run_thresholds_balanced[] = {
+	(THREAD_CAPACITY * 100 * MULT_FACTOR * 2) / DIV_FACTOR,
+	(THREAD_CAPACITY * 300 * MULT_FACTOR * 2) / DIV_FACTOR,
+	(THREAD_CAPACITY * 500 * MULT_FACTOR * 2) / DIV_FACTOR,
+	(THREAD_CAPACITY * 850 * MULT_FACTOR * 2) / DIV_FACTOR,
 	(THREAD_CAPACITY * 1100 * MULT_FACTOR * 2) / DIV_FACTOR,
 	(THREAD_CAPACITY * 1300 * MULT_FACTOR * 2) / DIV_FACTOR,
         (THREAD_CAPACITY * 1560 * MULT_FACTOR * 2) / DIV_FACTOR,
@@ -124,7 +128,7 @@ static unsigned int calculate_thread_stats(void)
 			break;
 	}
 
-	return nr_run + 3;
+	return nr_run;
 }
 
 static void update_per_cpu_stat(void)
@@ -169,7 +173,7 @@ static void __ref cpu_up_down_work(struct work_struct *work)
 		for_each_online_cpu(cpu) {
 			l_ip_info = &per_cpu(ip_info, cpu);
 
-			if (cpu <= 3 ||
+			if (cpu == 0 || (cpu == 4 && screen_on )||
 				((ktime_to_ms(ktime_get()) - l_ip_info->cpu_up_time) < min_cpu_up_time))
 				continue;
 			l_nr_threshold = cpu_nr_run_threshold << 1 / (num_online_cpus());
@@ -181,7 +185,7 @@ static void __ref cpu_up_down_work(struct work_struct *work)
 	} else {
 		update_per_cpu_stat();
 		for_each_cpu_not(cpu, cpu_online_mask) {
-			if(cpu <= 3)
+			if(cpu == 0)
 				continue;
 			cpu_up(cpu);
 			l_ip_info = &per_cpu(ip_info, cpu);
@@ -203,7 +207,7 @@ static void hima_hotplug_work_fn(struct work_struct *work)
 
 static void __ref hima_hotplug_suspend(void)
 {
-	max_cpus_online = 4;
+	max_cpus_online = 3;
 	screen_on = 0;
 }
 
