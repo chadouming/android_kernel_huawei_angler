@@ -242,8 +242,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = $(CCACHE) gcc
 HOSTCXX      = $(CCACHE) g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -Ofast -fomit-frame-pointer -std=gnu89
-HOSTCXXFLAGS = -Ofast
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -fgcse-las -fgraphite -floop-flatten -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -pipe -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-value
+HOSTCXXFLAGS = -O3 -fgcse-las -fgraphite -floop-flatten -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -pipe
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -327,7 +327,7 @@ include $(srctree)/scripts/Kbuild.include
 
 AS		= $(CROSS_COMPILE)as
 LD		= $(CROSS_COMPILE)ld
-REAL_CC		= $(CROSS_COMPILE)gcc
+CC		= ccache $(CROSS_COMPILE)gcc
 CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
@@ -343,30 +343,27 @@ CHECK		= sparse
 
 # Use the wrapper for the compiler.  This wrapper scans for new
 # warnings and causes the build to stop upon encountering them.
-CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
+# CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
+
+GRAPHITE	= -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -floop-flatten
+
+GEN_OPT_FLAGS := $(GRAPHITE) \
+		-fmodulo-sched -fmodulo-sched-allow-regmoves \
+		-ftree-loop-vectorize -ftree-loop-distribute-patterns \
+		-ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre \
+		-fgcse-after-reload -fgcse-lm -fgcse-sm -fsched-spec-load \
+		-ffast-math -fsingle-precision-constant -fpredictive-commoning \
+		-mcpu=cortex-a57.cortex-a53 -mtune=cortex-a57.cortex-a53 \
+		-g0 -DNDEBUG -fomit-frame-pointer -funswitch-loops
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-CFLAGS_MODULE   =
-AFLAGS_MODULE   =
+CFLAGS_MODULE   = $(GRAPHITE)
+AFLAGS_MODULE   = $(GRAPHITE)
 LDFLAGS_MODULE  = --strip-debug
-CFLAGS_KERNEL	=
-AFLAGS_KERNEL	=
+CFLAGS_KERNEL	= $(GRAPHITE)
+AFLAGS_KERNEL	= $(GRAPHITE)
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
-
-GRAPHITE        = -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -floop-flatten
-
-# fall back to -march=armv8-a in case the compiler isn't compatible
-# with -mcpu and -mtune
-ARM_ARCH_OPT := -mcpu=cortex-a57.cortex-a53 -mtune=cortex-a57.cortex-a53
-GEN_OPT_FLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a) \
- -Ofast $(GRAPHITE) \
- -g0 \
- -DNDEBUG \
- -fomit-frame-pointer \
- -fmodulo-sched \
- -fmodulo-sched-allow-regmoves \
- -fivopts
 
 # Use USERINCLUDE when you must reference the UAPI directories only.
 USERINCLUDE    := \
@@ -395,6 +392,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -std=gnu89 -Wno-unused-const-variable \
 		   -Wno-misleading-indentation -Wno-tautological-compare \
 		   $(GEN_OPT_FLAGS)
+
 KBUILD_AFLAGS_KERNEL := $(GEN_OPT_FLAGS)
 KBUILD_CFLAGS_KERNEL := $(GEN_OPT_FLAGS)
 KBUILD_AFLAGS   := -D__ASSEMBLY__
