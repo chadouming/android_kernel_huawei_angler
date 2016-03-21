@@ -687,8 +687,6 @@ static long msm_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 		msm_sensor_stop_stream(s_ctrl);
 		return 0;
 	default:
-		pr_err_ratelimited("%s: unsupported compat type 0x%x\n",
-				__func__, cmd);
 		return -ENOIOCTLCMD;
 	}
 }
@@ -1344,7 +1342,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void __user *argp)
 				break;
 			}
 			s_ctrl->sensor_state = MSM_SENSOR_POWER_UP;
-			CDBG("%s:%d sensor state %d\n", __func__, __LINE__,
+			pr_err("%s:%d sensor state %d\n", __func__, __LINE__,
 				s_ctrl->sensor_state);
 		} else {
 			rc = -EFAULT;
@@ -1371,7 +1369,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void __user *argp)
 				break;
 			}
 			s_ctrl->sensor_state = MSM_SENSOR_POWER_DOWN;
-			CDBG("%s:%d sensor state %d\n", __func__, __LINE__,
+			pr_err("%s:%d sensor state %d\n", __func__, __LINE__,
 				s_ctrl->sensor_state);
 		} else {
 			rc = -EFAULT;

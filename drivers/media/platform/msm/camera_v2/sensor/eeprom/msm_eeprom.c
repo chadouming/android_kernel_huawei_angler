@@ -194,8 +194,6 @@ static long msm_eeprom_subdev_ioctl(struct v4l2_subdev *sd,
 	case VIDIOC_MSM_EEPROM_CFG:
 		return msm_eeprom_config(e_ctrl, argp);
 	default:
-		pr_err_ratelimited("%s: unsupported compat type 0x%x\n",
-				__func__, cmd);
 		return -ENOIOCTLCMD;
 	}
 
@@ -397,7 +395,7 @@ static int msm_eeprom_parse_memory_map(struct device_node *of,
 		rc = of_property_read_u32_array(of, property,
 			(uint32_t *) &map[i].pageen, count);
 		if (rc < 0)
-			CDBG("%s: pageen not needed\n", __func__);
+			pr_err("%s: pageen not needed\n", __func__);
 
 		snprintf(property, PROPERTY_MAXSIZE, "qcom,saddr%d", i);
 		rc = of_property_read_u32_array(of, property,
@@ -899,8 +897,6 @@ static long msm_eeprom_subdev_ioctl32(struct v4l2_subdev *sd,
 	case VIDIOC_MSM_EEPROM_CFG32:
 		return msm_eeprom_config32(e_ctrl, argp);
 	default:
-		pr_err_ratelimited("%s: unsupported compat type 0x%x\n",
-				__func__, cmd);
 		return -ENOIOCTLCMD;
 	}
 

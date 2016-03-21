@@ -51,8 +51,6 @@ enum {
 	ADC4_TXFE,
 	ADC5_TXFE,
 	ADC6_TXFE,
-	HPH_DELAY_L,
-	HPH_DELAY_R,
 };
 
 #define TOMTOM_MAD_SLIMBUS_TX_PORT 12
@@ -63,7 +61,7 @@ enum {
 #define TOMTOM_BIT_ADJ_SHIFT_PORT1_6 4
 #define TOMTOM_BIT_ADJ_SHIFT_PORT7_10 5
 
-#define TOMTOM_HPH_PA_SETTLE_COMP_ON 10000
+#define TOMTOM_HPH_PA_SETTLE_COMP_ON 5000
 #define TOMTOM_HPH_PA_SETTLE_COMP_OFF 13000
 #define TOMTOM_HPH_PA_RAMP_DELAY 30000
 
@@ -1137,12 +1135,6 @@ static int tomtom_config_compander(struct snd_soc_dapm_widget *w,
 		if (!tomtom->comp_enabled[comp])
 			break;
 
-		/* If EAR PA is enabled then compander should not be enabled */
-		if ((snd_soc_read(codec, TOMTOM_A_RX_EAR_EN) & 0x10) != 0) {
-			pr_debug("%s: EAR is enabled, do not enable compander\n",
-				 __func__);
-			break;
-		}
 		/* Set compander Sample rate */
 		snd_soc_update_bits(codec,
 				    TOMTOM_A_CDC_COMP0_FS_CFG + (comp * 8),
@@ -3147,93 +3139,6 @@ done:
 	return dmic_ctl_val;
 }
 
-static u8 tomtom_get_spkdrv_ocp_curr_limit_val(struct snd_soc_codec *codec,
-	u32 spkdrv_ocp_curr_limit)
-{
-	u8 spkdrv_ocp_curr_limit_val;
-
-	dev_dbg(codec->dev,
-		"%s: spkdrv_ocp_curr_limit = %u\n",
-		__func__, spkdrv_ocp_curr_limit);
-
-	switch (spkdrv_ocp_curr_limit) {
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_0P0_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_0P0_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_0P375_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_0P375_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_0P750_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_0P750_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_1P125_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_1P125_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_1P500_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_1P500_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_1P875_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_1P875_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_2P250_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_2P250_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_2P625_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_2P625_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_3P000_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_3P000_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_3P375_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_3P375_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_3P750_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_3P750_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_4P125_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_4P125_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_4P500_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_4P500_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_4P875_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_4P875_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_5P250_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_5P250_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_I_5P625_A:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_5P625_A;
-		break;
-	case WCD9XXX_SPKDRV_OCP_CURR_LIMIT_UNDEFINED:
-	default:
-		spkdrv_ocp_curr_limit_val =
-				WCD9330_SPKDRV_OCP_CURR_LIMIT_I_2P625_A;
-		dev_dbg(codec->dev,
-			"%s: Invalid spkdrv_ocp_curr_limit, using default\n",
-			__func__);
-		break;
-	}
-
-	return spkdrv_ocp_curr_limit_val;
-}
-
 static int tomtom_codec_enable_dmic(struct snd_soc_dapm_widget *w,
 	struct snd_kcontrol *kcontrol, int event)
 {
@@ -4398,43 +4303,14 @@ static int tomtom_hph_pa_event(struct snd_soc_dapm_widget *w,
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
-		if (w->shift == 5)
-			set_bit(HPH_DELAY_L, &tomtom->status_mask);
-		else if (w->shift == 4)
-			set_bit(HPH_DELAY_R, &tomtom->status_mask);
-		else {
-			pr_err("%s: Invalid w->shift %d\n", __func__,
-				w->shift);
-			return -EINVAL;
-		}
 		/* Let MBHC module know PA is turning on */
 		wcd9xxx_resmgr_notifier_call(&tomtom->resmgr, e_pre_on);
 		break;
 
 	case SND_SOC_DAPM_POST_PMU:
-		if (test_bit(HPH_DELAY_L, &tomtom->status_mask)) {
-			/*
-			 * Make sure to wait 10ms after enabling HPHL
-			 * in register 0x1AB
-			*/
-			usleep_range(pa_settle_time, pa_settle_time + 1000);
-			clear_bit(HPH_DELAY_L, &tomtom->status_mask);
-			pr_debug("%s: sleep %d us after %s PA enable\n",
-				__func__, pa_settle_time, w->name);
-		} else if (test_bit(HPH_DELAY_R, &tomtom->status_mask)) {
-			/*
-			 * Make sure to wait 10ms after enabling HPHR
-			 * in register 0x1AB
-			*/
-			usleep_range(pa_settle_time, pa_settle_time + 1000);
-			clear_bit(HPH_DELAY_R, &tomtom->status_mask);
-			pr_debug("%s: sleep %d us after %s PA enable\n",
-				__func__, pa_settle_time, w->name);
-		} else {
-			pr_err("%s: Invalid w->shift %d\n", __func__,
-				w->shift);
-			return -EINVAL;
-		}
+		usleep_range(pa_settle_time, pa_settle_time + 1000);
+		pr_debug("%s: sleep %d us after %s PA enable\n", __func__,
+				pa_settle_time, w->name);
 		if (!high_perf_mode && !tomtom->uhqa_mode) {
 			wcd9xxx_clsh_fsm(codec, &tomtom->clsh_d,
 						 req_clsh_state,
@@ -4443,44 +4319,12 @@ static int tomtom_hph_pa_event(struct snd_soc_dapm_widget *w,
 		}
 		break;
 
-	case SND_SOC_DAPM_PRE_PMD:
-		if (w->shift == 5)
-			set_bit(HPH_DELAY_L, &tomtom->status_mask);
-		else if (w->shift == 4)
-			set_bit(HPH_DELAY_R, &tomtom->status_mask);
-		else {
-			pr_err("%s: Invalid w->shift %d\n", __func__,
-				 w->shift);
-			return -EINVAL;
-		}
-		break;
-
 	case SND_SOC_DAPM_POST_PMD:
 		/* Let MBHC module know PA turned off */
 		wcd9xxx_resmgr_notifier_call(&tomtom->resmgr, e_post_off);
-		if (test_bit(HPH_DELAY_L, &tomtom->status_mask)) {
-			/*
-			 * Make sure to wait 10ms after disabling HPHL
-			 * in register 0x1AB
-			*/
-			usleep_range(pa_settle_time, pa_settle_time + 1000);
-			clear_bit(HPH_DELAY_L, &tomtom->status_mask);
-			pr_debug("%s: sleep %d us after %s PA disable\n",
-				__func__, pa_settle_time, w->name);
-		} else if (test_bit(HPH_DELAY_R, &tomtom->status_mask)) {
-			/*
-			 * Make sure to wait 10ms after disabling HPHR
-			 * in register 0x1AB
-			*/
-			usleep_range(pa_settle_time, pa_settle_time + 1000);
-			clear_bit(HPH_DELAY_R, &tomtom->status_mask);
-			pr_debug("%s: sleep %d us after %s PA disable\n",
-				__func__, pa_settle_time, w->name);
-		} else {
-			pr_err("%s: Invalid w->shift %d\n", __func__,
-				 w->shift);
-			return -EINVAL;
-		}
+		usleep_range(pa_settle_time, pa_settle_time + 1000);
+		pr_debug("%s: sleep %d us after %s PA disable\n", __func__,
+				pa_settle_time, w->name);
 
 		break;
 	}
@@ -5460,7 +5304,7 @@ int tomtom_write(struct snd_soc_codec *codec, unsigned int reg,
 EXPORT_SYMBOL(tomtom_write);
 #endif
 
-#ifndef CONFIG_SOUND_CONTROL_HAX_3_GPL
+#ifndef CONFIG_SOUND_CONTROL_HAX_3_GPL 
 static
 #endif
 unsigned int tomtom_read(struct snd_soc_codec *codec,
@@ -6718,21 +6562,6 @@ static int tomtom_codec_ear_dac_event(struct snd_soc_dapm_widget *w,
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
-		/*
-		 * When EAR is enabled, compander (1) in HPH path should be
-		 * disabled, and gain source for HPH set to register
-		 */
-		if ((snd_soc_read(codec, TOMTOM_A_CDC_COMP1_B1_CTL) &
-				  0x03) != 0) {
-			pr_debug("%s: Disabling COMP1\n", __func__);
-			snd_soc_update_bits(codec, TOMTOM_A_RX_HPH_L_GAIN,
-						0x20, 0x20);
-			snd_soc_update_bits(codec, TOMTOM_A_RX_HPH_R_GAIN,
-						0x20, 0x20);
-			snd_soc_update_bits(codec, TOMTOM_A_CDC_COMP1_B1_CTL,
-						0x03, 0x00);
-		}
-
 		wcd9xxx_clsh_fsm(codec, &tomtom_p->clsh_d,
 						 WCD9XXX_CLSH_STATE_EAR,
 						 WCD9XXX_CLSH_REQ_ENABLE,
@@ -6905,8 +6734,7 @@ static const struct snd_soc_dapm_widget tomtom_dapm_widgets[] = {
 	SND_SOC_DAPM_OUTPUT("HEADPHONE"),
 	SND_SOC_DAPM_PGA_E("HPHL", TOMTOM_A_RX_HPH_CNP_EN, 5, 0, NULL, 0,
 		tomtom_hph_pa_event, SND_SOC_DAPM_PRE_PMU |
-		SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD |
-		SND_SOC_DAPM_POST_PMD),
+		SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD),
 	SND_SOC_DAPM_MIXER_E("HPHL DAC", TOMTOM_A_RX_HPH_L_DAC_CTL, 7, 0,
 		hphl_switch, ARRAY_SIZE(hphl_switch), tomtom_hphl_dac_event,
 		SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
@@ -6914,8 +6742,7 @@ static const struct snd_soc_dapm_widget tomtom_dapm_widgets[] = {
 
 	SND_SOC_DAPM_PGA_E("HPHR", TOMTOM_A_RX_HPH_CNP_EN, 4, 0, NULL, 0,
 		tomtom_hph_pa_event, SND_SOC_DAPM_PRE_PMU |
-		SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD |
-		SND_SOC_DAPM_POST_PMD),
+		SND_SOC_DAPM_POST_PMU |	SND_SOC_DAPM_POST_PMD),
 
 	SND_SOC_DAPM_DAC_E("HPHR DAC", NULL, TOMTOM_A_RX_HPH_R_DAC_CTL, 7, 0,
 		tomtom_hphr_dac_event,
@@ -7492,7 +7319,6 @@ static int tomtom_handle_pdata(struct tomtom_priv *tomtom)
 	u8 anc_ctl_value = 0;
 	u32 def_dmic_rate;
 	u16 tx_dmic_ctl_reg;
-	u8 spkdrv_ocp_curr_limit_val;
 
 	if (!pdata) {
 		pr_err("%s: NULL pdata\n", __func__);
@@ -7691,15 +7517,6 @@ static int tomtom_handle_pdata(struct tomtom_priv *tomtom)
 		0x1, anc_ctl_value);
 	snd_soc_update_bits(codec, TOMTOM_A_CDC_ANC2_B2_CTL,
 		0x1, anc_ctl_value);
-
-	spkdrv_ocp_curr_limit_val = tomtom_get_spkdrv_ocp_curr_limit_val(
-					tomtom->codec,
-					pdata->ocp.spkdrv_ocp_curr_limit);
-	snd_soc_update_bits(codec, TOMTOM_A_SPKR_DRV1_OCP_CTL,
-		0xF, spkdrv_ocp_curr_limit_val);
-	snd_soc_update_bits(codec, TOMTOM_A_SPKR_DRV2_OCP_CTL,
-		0xF, spkdrv_ocp_curr_limit_val);
-
 done:
 	return rc;
 }
@@ -8939,7 +8756,7 @@ static int tomtom_codec_probe(struct snd_soc_codec *codec)
 	struct wcd9xxx_core_resource *core_res;
 
 #ifdef CONFIG_SOUND_CONTROL_HAX_3_GPL
-	pr_info("[TOMTOM] Codec probe ...\n");
+	pr_info("tomtom codec probe...\n");
 	fauxsound_codec_ptr = codec;
 #endif
 

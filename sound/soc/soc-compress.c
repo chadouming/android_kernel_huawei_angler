@@ -246,9 +246,8 @@ static int soc_compr_free(struct snd_compr_stream *cstream)
 					SND_SOC_DAPM_STREAM_STOP);
 		} else {
 			rtd->pop_wait = 1;
-			queue_delayed_work(system_power_efficient_wq,
-					   &rtd->delayed_work,
-					   msecs_to_jiffies(rtd->pmdown_time));
+			schedule_delayed_work(&rtd->delayed_work,
+				msecs_to_jiffies(rtd->pmdown_time));
 		}
 	} else {
 		/* capture streams can be powered down now */
@@ -708,22 +707,6 @@ static int soc_compr_copy(struct snd_compr_stream *cstream,
 	return ret;
 }
 
-static int sst_compr_set_next_track_param(struct snd_compr_stream *cstream,
-				union snd_codec_options *codec_options)
-{
-	struct snd_soc_pcm_runtime *rtd = cstream->private_data;
-	struct snd_soc_platform *platform = rtd->platform;
-	int ret = 0;
-
-	if (platform->driver->compr_ops &&
-			platform->driver->compr_ops->set_next_track_param)
-		ret = platform->driver->compr_ops->set_next_track_param(cstream,
-								codec_options);
-
-	return ret;
-}
-
-
 static int sst_compr_set_metadata(struct snd_compr_stream *cstream,
 				struct snd_compr_metadata *metadata)
 {
@@ -751,34 +734,32 @@ static int sst_compr_get_metadata(struct snd_compr_stream *cstream,
 }
 /* ASoC Compress operations */
 static struct snd_compr_ops soc_compr_ops = {
-	.open			= soc_compr_open,
-	.free			= soc_compr_free,
-	.set_params		= soc_compr_set_params,
-	.set_metadata		= sst_compr_set_metadata,
-	.set_next_track_param	= sst_compr_set_next_track_param,
-	.get_metadata		= sst_compr_get_metadata,
-	.get_params		= soc_compr_get_params,
-	.trigger		= soc_compr_trigger,
-	.pointer		= soc_compr_pointer,
-	.ack			= soc_compr_ack,
-	.get_caps		= soc_compr_get_caps,
-	.get_codec_caps		= soc_compr_get_codec_caps
+	.open		= soc_compr_open,
+	.free		= soc_compr_free,
+	.set_params	= soc_compr_set_params,
+	.set_metadata   = sst_compr_set_metadata,
+	.get_metadata	= sst_compr_get_metadata,
+	.get_params	= soc_compr_get_params,
+	.trigger	= soc_compr_trigger,
+	.pointer	= soc_compr_pointer,
+	.ack		= soc_compr_ack,
+	.get_caps	= soc_compr_get_caps,
+	.get_codec_caps = soc_compr_get_codec_caps
 };
 
 /* ASoC Dynamic Compress operations */
 static struct snd_compr_ops soc_compr_dyn_ops = {
-	.open			= soc_compr_open_fe,
-	.free			= soc_compr_free_fe,
-	.set_params		= soc_compr_set_params_fe,
-	.get_params		= soc_compr_get_params,
-	.set_metadata		= sst_compr_set_metadata,
-	.set_next_track_param	= sst_compr_set_next_track_param,
-	.get_metadata		= sst_compr_get_metadata,
-	.trigger		= soc_compr_trigger_fe,
-	.pointer		= soc_compr_pointer,
-	.ack			= soc_compr_ack,
-	.get_caps		= soc_compr_get_caps,
-	.get_codec_caps		= soc_compr_get_codec_caps
+	.open		= soc_compr_open_fe,
+	.free		= soc_compr_free_fe,
+	.set_params	= soc_compr_set_params_fe,
+	.get_params	= soc_compr_get_params,
+	.set_metadata   = sst_compr_set_metadata,
+	.get_metadata	= sst_compr_get_metadata,
+	.trigger	= soc_compr_trigger_fe,
+	.pointer	= soc_compr_pointer,
+	.ack		= soc_compr_ack,
+	.get_caps	= soc_compr_get_caps,
+	.get_codec_caps = soc_compr_get_codec_caps
 };
 
 /* create a new compress */
@@ -792,34 +773,17 @@ int soc_new_compress(struct snd_soc_pcm_runtime *rtd, int num)
 	struct snd_pcm *be_pcm;
 	char new_name[64];
 	int ret = 0, direction = 0;
-	int playback = 0, capture = 0;
 
 	/* check client and interface hw capabilities */
 	snprintf(new_name, sizeof(new_name), "%s %s-%d",
 			rtd->dai_link->stream_name, codec_dai->name, num);
 
 	if (codec_dai->driver->playback.channels_min)
-		playback = 1;
-	if (codec_dai->driver->capture.channels_min)
-		capture = 1;
-
-	capture = capture && cpu_dai->driver->capture.channels_min;
-	playback = playback && cpu_dai->driver->playback.channels_min;
-
-	/*
-	 * Compress devices are unidirectional so only one of the directions
-	 * should be set, check for that (xor)
-	 */
-	if (playback + capture != 1) {
-		dev_err(rtd->card->dev, "Invalid direction for compress P %d, C %d\n",
-				playback, capture);
-		return -EINVAL;
-	}
-
-	if(playback)
 		direction = SND_COMPRESS_PLAYBACK;
-	else
+	else if (codec_dai->driver->capture.channels_min)
 		direction = SND_COMPRESS_CAPTURE;
+	else
+		return -EINVAL;
 
 	compr = kzalloc(sizeof(*compr), GFP_KERNEL);
 	if (compr == NULL) {

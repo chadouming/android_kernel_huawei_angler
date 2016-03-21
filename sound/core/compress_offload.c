@@ -44,13 +44,6 @@
 #include <sound/compress_offload.h>
 #include <sound/compress_driver.h>
 
-/* struct snd_compr_codec_caps overflows the ioctl bit size for some
- * architectures, so we need to disable the relevant ioctls.
- */
-#if _IOC_SIZEBITS < 14
-#define COMPR_CODEC_CAPS_OVERFLOW
-#endif
-
 /* TODO:
  * - add substream support for multiple devices in case of
  *	SND_DYNAMIC_MINORS is not used
@@ -450,7 +443,6 @@ out:
 	return retval;
 }
 
-#ifndef COMPR_CODEC_CAPS_OVERFLOW
 static int
 snd_compr_get_codec_caps(struct snd_compr_stream *stream, unsigned long arg)
 {
@@ -474,7 +466,6 @@ out:
 	kfree(caps);
 	return retval;
 }
-#endif /* !COMPR_CODEC_CAPS_OVERFLOW */
 
 /* revisit this with snd_pcm_preallocate_xxx */
 static int snd_compr_allocate_buffer(struct snd_compr_stream *stream,
@@ -505,7 +496,7 @@ static int snd_compress_check_input(struct snd_compr_params *params)
 {
 	/* first let's check the buffer parameter's */
 	if (params->buffer.fragment_size == 0 ||
-	    params->buffer.fragments > INT_MAX / params->buffer.fragment_size)
+			params->buffer.fragments > SIZE_MAX / params->buffer.fragment_size)
 		return -EINVAL;
 
 	/* now codec parameters */
@@ -768,27 +759,6 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
 	return retval;
 }
 
-static int snd_compr_set_next_track_param(struct snd_compr_stream *stream,
-		unsigned long arg)
-{
-	union snd_codec_options codec_options;
-	int retval;
-
-	/* set next track params when stream is running or has been setup */
-	if (stream->runtime->state != SNDRV_PCM_STATE_SETUP &&
-			stream->runtime->state != SNDRV_PCM_STATE_RUNNING)
-		return -EPERM;
-
-	if (copy_from_user(&codec_options, (void __user *)arg,
-				sizeof(codec_options)))
-		return -EFAULT;
-
-	retval = stream->ops->set_next_track_param(stream, &codec_options);
-	if (retval != 0)
-		return retval;
-	return 0;
-}
-
 static int snd_compress_simple_ioctls(struct file *file,
 				struct snd_compr_stream *stream,
 				unsigned int cmd, unsigned long arg)
@@ -805,11 +775,10 @@ static int snd_compress_simple_ioctls(struct file *file,
 		retval = snd_compr_get_caps(stream, arg);
 		break;
 
-#ifndef COMPR_CODEC_CAPS_OVERFLOW
 	case _IOC_NR(SNDRV_COMPRESS_GET_CODEC_CAPS):
 		retval = snd_compr_get_codec_caps(stream, arg);
 		break;
-#endif
+
 
 	case _IOC_NR(SNDRV_COMPRESS_TSTAMP):
 		retval = snd_compr_tstamp(stream, arg);
@@ -884,10 +853,6 @@ static long snd_compr_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 
 	case _IOC_NR(SNDRV_COMPRESS_NEXT_TRACK):
 		retval = snd_compr_next_track(stream);
-		break;
-
-	case _IOC_NR(SNDRV_COMPRESS_SET_NEXT_TRACK_PARAM):
-		retval = snd_compr_set_next_track_param(stream, arg);
 		break;
 
 	default:

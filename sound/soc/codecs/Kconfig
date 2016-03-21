@@ -567,7 +567,7 @@ config SND_SOC_MSM_HDMI_CODEC_RX
         supports hdmi panel.
 
 config SOUND_CONTROL_HAX_3_GPL
-	tristate "WCD93XX Sound Control Driver"
-	default n
+	tristate "new wcd93xx sound control hax"
+	default y
 	help
-	  FauxSound for WCD93xx chipset SOC
+	  FauxSound WCD93xx chipset sound control hacks 3.0 for deeper hax

@@ -83,95 +83,59 @@ static ssize_t mic_gain_store(struct kobject *kobj,
 
 }
 
-static ssize_t speaker_l_gain_show(struct kobject *kobj,
+static ssize_t speaker_gain_show(struct kobject *kobj,
 		struct kobj_attribute *attr, char *buf)
 {
-        return sprintf(buf, "%u",
-			speaker_gain_lval);
+        return sprintf(buf, "%u %u",
+			speaker_gain_lval,
+			speaker_gain_rval);
 
 }
 
-static ssize_t speaker_r_gain_show(struct kobject *kobj,
-                struct kobj_attribute *attr, char *buf)
-{
-        return sprintf(buf, "%u",
-                        speaker_gain_rval);
-
-}
-
-static ssize_t speaker_l_gain_store(struct kobject *kobj,
+static ssize_t speaker_gain_store(struct kobject *kobj,
 		struct kobj_attribute *attr, const char *buf, size_t count)
 {
-	unsigned int lval;
+	unsigned int lval, rval;
 
-	sscanf(buf, "%u", &lval);
+	sscanf(buf, "%u %u", &lval, &rval);
 
 	if (lval >= 0 && lval < 31)
 		speaker_gain_lval = lval;
 	else
 		speaker_gain_lval = 20;
 
+	if (rval >= 0 && rval < 31)
+		speaker_gain_rval = rval;
+	else
+		speaker_gain_rval = 20;
+
 	return count;
 }
 
-
-static ssize_t speaker_r_gain_store(struct kobject *kobj,
-                struct kobj_attribute *attr, const char *buf, size_t count)
-{
-        unsigned int rval;
-
-        sscanf(buf, "%u", &rval);
-
-        if (rval >= 0 && rval < 31)
-                speaker_gain_rval = rval;
-        else
-                speaker_gain_rval = 20;
-
-        return count;
-}
-
-static ssize_t headphone_l_gain_show(struct kobject *kobj,
+static ssize_t headphone_gain_show(struct kobject *kobj,
 		struct kobj_attribute *attr, char *buf)
 {
-	return sprintf(buf, "%u",
+	return sprintf(buf, "%u %u",
 			tomtom_read(fauxsound_codec_ptr,
-				TOMTOM_A_CDC_RX1_VOL_CTL_B2_CTL));
+				TOMTOM_A_CDC_RX1_VOL_CTL_B2_CTL),
+			tomtom_read(fauxsound_codec_ptr,
+				TOMTOM_A_CDC_RX2_VOL_CTL_B2_CTL));
 }
 
-static ssize_t headphone_r_gain_show(struct kobject *kobj,
-                struct kobj_attribute *attr, char *buf)
-{
-        return sprintf(buf, "%u",
-                        tomtom_read(fauxsound_codec_ptr,
-                                TOMTOM_A_CDC_RX2_VOL_CTL_B2_CTL));
-}
-
-static ssize_t headphone_l_gain_store(struct kobject *kobj,
+static ssize_t headphone_gain_store(struct kobject *kobj,
 		struct kobj_attribute *attr, const char *buf, size_t count)
 {
-	unsigned int lval;
+	unsigned int lval, rval;
 
-	sscanf(buf, "%u", &lval);
+	sscanf(buf, "%u %u", &lval, &rval);
 
 	tomtom_write(fauxsound_codec_ptr,
 		TOMTOM_A_CDC_RX1_VOL_CTL_B2_CTL, lval);
+	tomtom_write(fauxsound_codec_ptr,
+		TOMTOM_A_CDC_RX2_VOL_CTL_B2_CTL, rval);
 
 	return count;
 }
-
-static ssize_t headphone_r_gain_store(struct kobject *kobj,
-                struct kobj_attribute *attr, const char *buf, size_t count)
-{
-        unsigned int rval;
-
-        sscanf(buf, "%u", &rval);
-
-        tomtom_write(fauxsound_codec_ptr,
-                TOMTOM_A_CDC_RX2_VOL_CTL_B2_CTL, rval);
-
-        return count;
-}
-
 
 static ssize_t sound_control_version_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
@@ -192,29 +156,17 @@ static struct kobj_attribute mic_gain_attribute =
 		mic_gain_show,
 		mic_gain_store);
 
-static struct kobj_attribute speaker_l_gain_attribute =
-	__ATTR(gpl_speaker_l_gain,
+static struct kobj_attribute speaker_gain_attribute =
+	__ATTR(gpl_speaker_gain,
 		0666,
-		speaker_l_gain_show,
-		speaker_l_gain_store);
+		speaker_gain_show,
+		speaker_gain_store);
 
-static struct kobj_attribute speaker_r_gain_attribute =
-        __ATTR(gpl_speaker_r_gain,
-                0666,
-                speaker_r_gain_show,
-                speaker_r_gain_store);
-
-static struct kobj_attribute headphone_l_gain_attribute =
-	__ATTR(gpl_headphone_l_gain,
+static struct kobj_attribute headphone_gain_attribute =
+	__ATTR(gpl_headphone_gain,
 		0666,
-		headphone_l_gain_show,
-		headphone_l_gain_store);
-
-static struct kobj_attribute headphone_r_gain_attribute =
-        __ATTR(gpl_headphone_r_gain,
-                0666,
-                headphone_r_gain_show,
-                headphone_r_gain_store);
+		headphone_gain_show,
+		headphone_gain_store);
 
 static struct kobj_attribute sound_control_version_attribute =
 	__ATTR(gpl_sound_control_version,
@@ -225,10 +177,8 @@ static struct attribute *sound_control_attrs[] =
 	{
 		&cam_mic_gain_attribute.attr,
 		&mic_gain_attribute.attr,
-		&speaker_l_gain_attribute.attr,
-		&speaker_r_gain_attribute.attr,
-		&headphone_l_gain_attribute.attr,
-		&headphone_r_gain_attribute.attr,
+		&speaker_gain_attribute.attr,
+		&headphone_gain_attribute.attr,
 		&sound_control_version_attribute.attr,
 		NULL,
 	};

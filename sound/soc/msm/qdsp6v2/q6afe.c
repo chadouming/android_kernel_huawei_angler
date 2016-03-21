@@ -972,7 +972,7 @@ static int afe_get_cal_topology_id(u16 port_id, u32 *topology_id)
 	struct audio_cal_info_afe_top   *afe_top_info = NULL;
 
 	if (this_afe.cal_data[AFE_TOPOLOGY_CAL] == NULL) {
-		pr_debug("%s: [AFE_TOPOLOGY_CAL] not initialized\n", __func__);
+		pr_err("%s: [AFE_TOPOLOGY_CAL] not initialized\n", __func__);
 		return -EINVAL;
 	}
 	if (topology_id == NULL) {
@@ -985,7 +985,7 @@ static int afe_get_cal_topology_id(u16 port_id, u32 *topology_id)
 	cal_block = afe_find_cal_topo_id_by_port(
 		this_afe.cal_data[AFE_TOPOLOGY_CAL], port_id);
 	if (cal_block == NULL) {
-		pr_debug("%s: [AFE_TOPOLOGY_CAL] not initialized for this port %d\n",
+		pr_err("%s: [AFE_TOPOLOGY_CAL] not initialized for this port %d\n",
 				__func__, port_id);
 		ret = -EINVAL;
 		goto unlock;
@@ -1075,13 +1075,6 @@ done:
 static void remap_cal_data(struct cal_block_data *cal_block, int cal_index)
 {
 	int ret = 0;
-
-	if (cal_block->map_data.ion_client == NULL) {
-		pr_err("%s: No ION allocation for cal index %d!\n",
-			__func__, cal_index);
-		ret = -EINVAL;
-		goto done;
-	}
 
 	if ((cal_block->map_data.map_size > 0) &&
 		(cal_block->map_data.q6map_handle == 0)) {
@@ -4358,9 +4351,6 @@ int afe_spk_prot_get_calib_data(struct afe_spkr_prot_get_vi_calib *calib_resp)
 		pr_err("%s: wait_event timeout\n", __func__);
 		ret = -EINVAL;
 		goto fail_cmd;
-	} else {
-		/* set ret to 0 as no timeout happened */
-		ret = 0;
 	}
 	if (atomic_read(&this_afe.status) != 0) {
 		pr_err("%s: config cmd failed\n", __func__);

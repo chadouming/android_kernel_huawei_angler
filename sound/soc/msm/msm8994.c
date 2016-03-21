@@ -1967,7 +1967,7 @@ static int msm8994_tert_mi2s_snd_startup(struct snd_pcm_substream *substream)
 	struct msm8994_asoc_mach_data *pdata = snd_soc_card_get_drvdata(card);
 	struct msm_pinctrl_info *pinctrl_info = &pdata->pinctrl_info;
 
-	pr_debug("%s: dai name %s %p  substream = %s  stream = %d bit width =%d sample rate =%d  \n", __func__, cpu_dai->name, cpu_dai->dev,substream->name,
+	pr_info("%s: dai name %s %p  substream = %s  stream = %d bit width =%d sample rate =%d  \n", __func__, cpu_dai->name, cpu_dai->dev,substream->name,
 			substream->stream, tert_mi2s_bit_format, tert_mi2s_sample_rate);
 
 	if (atomic_inc_return(&tert_mi2s_rsc_ref) == 1) {
@@ -2058,7 +2058,7 @@ static void msm8994_tert_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 	struct msm_pinctrl_info *pinctrl_info = &pdata->pinctrl_info;
 	int ret = 0;
 
-	pr_debug("%s: dai name %s %p  substream = %s  stream = %d  \n", __func__, cpu_dai->name, cpu_dai->dev,substream->name, substream->stream);
+	pr_info("%s: dai name %s %p  substream = %s  stream = %d  \n", __func__, cpu_dai->name, cpu_dai->dev,substream->name, substream->stream);
 	if (atomic_dec_return(&tert_mi2s_rsc_ref) == 0) {
 
 		tert_mi2s_clk.clk_val1 = Q6AFE_LPASS_IBIT_CLK_DISABLE;
@@ -2072,7 +2072,7 @@ static void msm8994_tert_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 		ret = msm_reset_pinctrl(pinctrl_info, STATE_TERT_MI2S_ACTIVE);
 		if (ret)
 			pr_err("%s: Reset pinctrl failed with %d\n", __func__, ret);
-		pr_debug("%s Tertiary MI2S Clock is Disabled", __func__);
+		pr_info("%s Tertiary MI2S Clock is Disabled", __func__);
 	}
 }
 
@@ -2087,7 +2087,7 @@ static int msm8994_quat_mi2s_snd_startup(struct snd_pcm_substream *substream)
 	struct msm8994_asoc_mach_data *pdata = snd_soc_card_get_drvdata(card);
 	struct msm_pinctrl_info *pinctrl_info = &pdata->pinctrl_info;
 
-	pr_debug("%s: dai name %s %p  substream = %s  stream = %d bit width =%d sample rate =%d  \n", __func__, cpu_dai->name, cpu_dai->dev,substream->name,
+	pr_info("%s: dai name %s %p  substream = %s  stream = %d bit width =%d sample rate =%d  \n", __func__, cpu_dai->name, cpu_dai->dev,substream->name,
 			substream->stream, quat_mi2s_bit_format, quat_mi2s_sample_rate);
 
 	if (atomic_inc_return(&quat_mi2s_rsc_ref) == 1) {
@@ -2188,7 +2188,7 @@ static void msm8994_quat_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 	struct msm_pinctrl_info *pinctrl_info = &pdata->pinctrl_info;
 	int ret = 0;
 
-	pr_debug("%s: dai name %s %p  substream = %s  stream = %d  \n", __func__, cpu_dai->name, cpu_dai->dev,substream->name, substream->stream);
+	pr_info("%s: dai name %s %p  substream = %s  stream = %d  \n", __func__, cpu_dai->name, cpu_dai->dev,substream->name, substream->stream);
 	if (atomic_dec_return(&quat_mi2s_rsc_ref) == 0) {
 
 		quat_mi2s_clk.clk_val1 = Q6AFE_LPASS_IBIT_CLK_DISABLE;
@@ -2202,7 +2202,7 @@ static void msm8994_quat_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 		ret = msm_reset_pinctrl(pinctrl_info, STATE_QUAT_MI2S_ACTIVE);
 		if (ret)
 			pr_err("%s: Reset pinctrl failed with %d\n", __func__, ret);
-		pr_debug("%s Quaternary MI2S Clock is Disabled", __func__);
+		pr_info("%s Quaternary MI2S Clock is Disabled", __func__);
 	}
 }
 
@@ -2573,7 +2573,7 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 					     134, 135, 136, 137, 138, 139,
 					     140, 141, 142, 143};
 
-	pr_debug("%s: dev_name%s\n", __func__, dev_name(cpu_dai->dev));
+	pr_info("%s: dev_name%s\n", __func__, dev_name(cpu_dai->dev));
 
 	rtd->pmdown_time = 0;
 
@@ -2795,13 +2795,13 @@ static void *def_codec_mbhc_cal(void)
 	btn_high = wcd9xxx_mbhc_cal_btn_det_mp(btn_cfg,
 					       MBHC_BTN_DET_V_BTN_HIGH);
 	btn_low[0] = -200;
-	btn_high[0] = 75;
-	btn_low[1] = 76;
-	btn_high[1] = 165;
-	btn_low[2] = 166;
-	btn_high[2] = 290;
-	btn_low[3] = 291;
-	btn_high[3] = 650;
+	btn_high[0] = 87;
+	btn_low[1] = 88;
+	btn_high[1] = 209;
+	btn_low[2] = 210;
+	btn_high[2] = 360;
+	btn_low[3] = 361;
+	btn_high[3] = 722;
 	btn_low[4] = 149;
 	btn_high[4] = 189;
 	btn_low[5] = 190;
@@ -3252,7 +3252,7 @@ static struct snd_soc_dai_link msm8994_common_dai_links[] = {
 		.name = "MSM8994 Compr8",
 		.stream_name = "COMPR8",
 		.cpu_dai_name = "MultiMedia8",
-		.platform_name = "msm-compress-dsp",
+		.platform_name = "msm-compr-dsp",
 		.dynamic = 1,
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST,
 			 SND_SOC_DPCM_TRIGGER_POST},

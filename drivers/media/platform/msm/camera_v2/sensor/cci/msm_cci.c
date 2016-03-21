@@ -997,8 +997,6 @@ static int32_t msm_cci_config(struct v4l2_subdev *sd,
 	case MSM_CCI_GPIO_WRITE:
 		break;
 	default:
-		pr_err_ratelimited("%s:%d unsupported compat type 0x%x\n",
-				__func__, __LINE__, cci_ctrl->cmd);
 		rc = -ENOIOCTLCMD;
 	}
 	CDBG("%s line %d rc %d\n", __func__, __LINE__, rc);
@@ -1094,8 +1092,6 @@ static long msm_cci_subdev_ioctl(struct v4l2_subdev *sd,
 		break;
 	}
 	default:
-		pr_err_ratelimited("%s:%d unsupported compat type 0x%x\n",
-				__func__, __LINE__, cmd);
 		rc = -ENOIOCTLCMD;
 	}
 	CDBG("%s line %d rc %d\n", __func__, __LINE__, rc);
@@ -1380,7 +1376,7 @@ static int msm_cci_get_clk_info(struct cci_device *cci_dev,
 			rc = of_property_read_string_index(of_node,
 				"clock-names", j,
 				&(cci_clk_info[i][j].clk_name));
-			CDBG("%s: clock-names[%d][%d] = %s\n", __func__,
+			pr_err("%s: clock-names[%d][%d] = %s\n", __func__,
 				i, j, cci_clk_info[i][j].clk_name);
 			if (rc < 0) {
 				pr_err("%s:%d, failed\n", __func__, __LINE__);
@@ -1390,7 +1386,7 @@ static int msm_cci_get_clk_info(struct cci_device *cci_dev,
 			cci_clk_info[i][j].clk_rate =
 				(be32_to_cpu(p[index]) == 0) ?
 					(long)-1 : be32_to_cpu(p[index]);
-			CDBG("%s: clk_rate[%d][%d] = %ld\n", __func__, i, j,
+			pr_err("%s: clk_rate[%d][%d] = %ld\n", __func__, i, j,
 				cci_clk_info[i][j].clk_rate);
 			index++;
 		}
