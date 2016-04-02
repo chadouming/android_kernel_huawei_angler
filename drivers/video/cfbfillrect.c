@@ -311,7 +311,7 @@ fast_fill16(struct fb_info *p, unsigned long __iomem *dst, int dst_idx,
 		else if (n == 16) {
 			fb_writew(pat, (u16 *)dstp);
 			continue;
-		}	
+		}
 #else /* BITS_PER_LONG == 64 */
 		if (dst_idx) {
 			if (dst_idx == 16) {
@@ -329,10 +329,10 @@ fast_fill16(struct fb_info *p, unsigned long __iomem *dst, int dst_idx,
 				}
 				fb_writel(pat, (u32 *)dstp + 1);
 			}
-			else if (dst_idx == 48) {
+			else if (dst_idx == 48)
 				fb_writew(pat, (u16 *)dstp + 3);
 			dstp++;
-			n -= 64 - dist_idx;
+			n -= 64 - dst_idx;
 			if (n == 0)
 				continue;
 		}
@@ -389,7 +389,7 @@ fast_fill32(struct fb_info *p, unsigned long __iomem *dst, int dst_idx,
 		else if (n == 32) {
 			fb_writel(pat, dstp);
 			continue;
-		}	
+		}
 #endif
 		n /= BITS_PER_LONG;
 		while (n >= 8) {
