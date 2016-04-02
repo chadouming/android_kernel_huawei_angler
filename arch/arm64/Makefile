@@ -19,14 +19,16 @@ LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
 
 KBUILD_DEFCONFIG := defconfig
 
-ARM_ARCH_OPT := -mcpu=cortex-a57.cortex-a53 -mtune=cortex-a57.cortex-a53
-GEN_OPT_FLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a) \
- -g0 \
- -DNDEBUG \
- -fomit-frame-pointer \
- -fmodulo-sched \
- -fmodulo-sched-allow-regmoves \
- -fivopts
+GRAPHITE        = -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -floop-flatten
+
+GEN_OPT_FLAGS := $(GRAPHITE) \
+                -fmodulo-sched -fmodulo-sched-allow-regmoves \
+                -ftree-loop-vectorize -ftree-loop-distribute-patterns \
+                -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre \
+                -fgcse-after-reload -fgcse-lm -fgcse-sm -fsched-spec-load \
+                -ffast-math -fsingle-precision-constant -fpredictive-commoning \
+                -mcpu=cortex-a57.cortex-a53 -mtune=cortex-a57.cortex-a53 \
+                -g0 -DNDEBUG -fomit-frame-pointer -funswitch-loops
 
 KBUILD_CFLAGS	+= -mgeneral-regs-only
 KBUILD_CFLAGS	+= -fno-pic
