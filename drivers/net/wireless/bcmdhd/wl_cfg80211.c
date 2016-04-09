@@ -11947,9 +11947,9 @@ static void wl_update_hidden_ap_ie(struct wl_bss_info *bi, u8 *ie_stream, u32 *i
 	 * 3. If in case of erroneous buffer input where ssid length doesnt match the space
 	 * allocated to it.
 	 */
-	if (!ssidie) {
+	if (!ssidie)
 		return;
-	}
+
 	available_buffer_len = ((int)(*ie_size)) - (ssidie + 2 - ie_stream);
 	remaining_ie_buf_len = available_buffer_len - (int)ssidie[1];
 	if ((ssid_len > ssidie[1]) ||
