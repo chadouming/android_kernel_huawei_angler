@@ -1163,6 +1163,7 @@ void msm_comm_session_clean(struct msm_vidc_inst *inst)
 	}
 
 	hdev = inst->core->device;
+	mutex_lock(&inst->lock);
 	if (hdev && inst->session) {
 		dprintk(VIDC_DBG, "cleaning up instance: 0x%p\n", inst);
 		rc = call_hfi_op(hdev, session_clean,
@@ -1173,6 +1174,7 @@ void msm_comm_session_clean(struct msm_vidc_inst *inst)
 		}
 		inst->session = NULL;
 	}
+	mutex_unlock(&inst->lock);
 }
 
 static void handle_session_close(enum command_response cmd, void *data)
@@ -3943,6 +3945,9 @@ enum hal_extradata_id msm_comm_get_hal_extradata_index(
 		break;
 	case V4L2_MPEG_VIDC_EXTRADATA_METADATA_MBI:
 		ret = HAL_EXTRADATA_METADATA_MBI;
+		break;
+	case V4L2_MPEG_VIDC_EXTRADATA_VUI_DISPLAY:
+		ret = HAL_EXTRADATA_VUI_DISPLAY_INFO;
 		break;
 	default:
 		dprintk(VIDC_WARN, "Extradata not found: %d\n", index);
