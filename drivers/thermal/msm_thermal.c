@@ -4767,8 +4767,6 @@ int msm_thermal_init(struct msm_thermal_data *pdata)
 		cpus_previously_online_update();
 		register_cpu_notifier(&msm_thermal_cpu_notifier);
 	}
-	/* emulate default behavior */
-	enabled = 0;
 	thermal_subsystem_init();
 	return ret;
 }
