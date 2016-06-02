@@ -46,6 +46,8 @@ struct vfsmount;
 struct cred;
 struct swap_info_struct;
 struct seq_file;
+struct fscrypt_info;
+struct fscrypt_operations;
 struct workqueue_struct;
 struct fscrypt_info;
 struct fscrypt_operations;
