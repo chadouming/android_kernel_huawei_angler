@@ -3,3 +3,11 @@ config HIMA_HOTPLUG
         default n
         help
           Generic cpu hotplugging driver for ARM SOCs
+
+config SIMPLE_HOTPLUG
+        bool "Enable simple-hotplug cpu hotplug driver"
+        default n
+        help
+          Simple CPU hotplugging algorithm designed for SD-810
+          This will simply keep cores you want online.
+          Useful to create a 4 cores (2 big and 2 LITTLE) mode
