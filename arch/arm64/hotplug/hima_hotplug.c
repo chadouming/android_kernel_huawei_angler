@@ -27,15 +27,15 @@
 
 #define HIMA_HOTPLUG		       "hima_hotplug"
 #define HIMA_HOTPLUG_MAJOR_VERSION     	7
-#define HIMA_HOTPLUG_MINOR_VERSION     	1
+#define HIMA_HOTPLUG_MINOR_VERSION     	0
 
-#define DEF_SAMPLING_MS                	200
+#define DEF_SAMPLING_MS                	300
 #define RESUME_SAMPLING_MS             	60
 #define START_DELAY_MS                 	10000
 
 #define DEFAULT_MIN_CPUS_ONLINE        	4
-#define DEFAULT_MAX_CPUS_ONLINE        	4
-#define DEFAULT_MIN_UP_TIME            	1500
+#define DEFAULT_MAX_CPUS_ONLINE        	8
+#define DEFAULT_MIN_UP_TIME            	2000
 
 #define DEFAULT_NR_FSHIFT              	4
 
@@ -72,7 +72,7 @@ static unsigned int cpu_nr_run_threshold = CPU_NR_THRESHOLD;
 
 /* Profile Tuning */
 static unsigned int nr_run_thresholds_balanced[] = {
-	30, 60, 90, 120, UINT_MAX
+	93, 109, 125, 167, UINT_MAX
 };
 
 static unsigned int nr_run_thresholds_disable[] = {
@@ -84,7 +84,6 @@ static unsigned int *nr_run_profiles[] = {
 	nr_run_thresholds_disable
 };
 
-#if 0
 static unsigned int calculate_thread_stats(void)
 {
 	unsigned int avg_nr_run = avg_nr_running();
@@ -152,7 +151,7 @@ static void __ref cpu_up_down_work(struct work_struct *work)
 	} else {
 		update_per_cpu_stat();
 		for_each_cpu_not(cpu, cpu_online_mask) {
-			if(cpu == 0)
+			if(cpu <= 3)
 				continue;
 			cpu_up(cpu);
 			l_ip_info = &per_cpu(ip_info, cpu);
@@ -172,39 +171,19 @@ static void hima_hotplug_work_fn(struct work_struct *work)
 					msecs_to_jiffies(def_sampling_ms));
 }
 
-#endif
 
 #ifdef CONFIG_STATE_NOTIFIER
 static void __ref hima_hotplug_suspend(void)
 {
-/*
-	int cpu = 0;
-
-	// Only use little core while screen off
-	max_cpus_online = 4;
-	for_each_online_cpu(cpu)
-		if(cpu >= 4)
-			cpu_down(cpu);
-
-*/
-
 }
 
 static void __ref hima_hotplug_resume(void)
 {
-/*
 	int cpu = 0;
 
-	// Bring back all cores while screen on
-	max_cpus_online = 8;
+	/* Bring all cores on for fast resume */
 	for_each_cpu_not(cpu, cpu_online_mask)
 		cpu_up(cpu);
-
-*/
-
-	cpu_up(0);cpu_up(1);cpu_up(4);cpu_up(5);
-	cpu_down(2);cpu_down(3);cpu_down(6);cpu_down(7);
-
 }
 
 static int state_notifier_callback(struct notifier_block *this,
@@ -230,9 +209,8 @@ static int state_notifier_callback(struct notifier_block *this,
 
 static int __ref hima_hotplug_start(void)
 {
-	int ret = 0;
+	int cpu, ret = 0;
 
-#if 0
 	hima_hotplug_wq = alloc_workqueue("hima_hotplug", WQ_HIGHPRI | WQ_FREEZABLE, 0);
 	if (!hima_hotplug_wq) {
 		pr_err("%s: Failed to allocate hotplug workqueue\n",
@@ -240,7 +218,6 @@ static int __ref hima_hotplug_start(void)
 		ret = -ENOMEM;
 		goto err_out;
 	}
-#endif
 
 #ifdef CONFIG_STATE_NOTIFIER
 	notif.notifier_call = state_notifier_callback;
@@ -251,18 +228,16 @@ static int __ref hima_hotplug_start(void)
 	}
 #endif
 
-#if 0
 	INIT_WORK(&up_down_work, cpu_up_down_work);
 	INIT_DELAYED_WORK(&hima_hotplug_work, hima_hotplug_work_fn);
-#endif
 
-	cpu_up(0);cpu_up(1);cpu_up(4);cpu_up(5);
-        cpu_down(2);cpu_down(3);cpu_down(6);cpu_down(7);
+	/* Fire up all CPUs */
+	for_each_cpu_not(cpu, cpu_online_mask) {
+		cpu_up(cpu);
+	}
 
-	/*
 	queue_delayed_work_on(0, hima_hotplug_wq, &hima_hotplug_work,
 			      START_DELAY_MS);
-	*/
 
 	return ret;
 
@@ -445,10 +420,9 @@ static int __init hima_hotplug_init(void)
 		 HIMA_HOTPLUG_MAJOR_VERSION,
 		 HIMA_HOTPLUG_MINOR_VERSION);
 
-	/*
 	if (atomic_read(&hima_hotplug_active) == 1)
 		hima_hotplug_start();
-	*/
+
 	return 0;
 }
 
