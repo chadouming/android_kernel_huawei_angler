@@ -19,20 +19,15 @@ LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
 
 KBUILD_DEFCONFIG := defconfig
 
-GRAPHITE        = -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -floop-flatten
-
-GEN_OPT_FLAGS := $(GRAPHITE) \
-                -fmodulo-sched -fmodulo-sched-allow-regmoves \
-                -ftree-loop-vectorize -ftree-loop-distribute-patterns \
-                -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre \
-                -fgcse-after-reload -fgcse-lm -fgcse-sm -fsched-spec-load \
-                -ffast-math -fsingle-precision-constant -fpredictive-commoning \
-                -mcpu=cortex-a57.cortex-a53 -mtune=cortex-a57.cortex-a53 \
-                -g0 -DNDEBUG -fomit-frame-pointer -funswitch-loops
+ifeq ($(COMPILER),clang)
+KBUILD_CFLAGS   += -fno-builtin
+KBUILD_CFLAGS   += -Wno-asm-operand-widths
+KBUILD_CFLAGS   += -Wno-initializer-overrides
+endif
 
 KBUILD_CFLAGS	+= -mgeneral-regs-only
 KBUILD_CFLAGS	+= -fno-pic
-KBUILD_CFLAGS	+= $(GEN_OPT_FLAGS)
+KBUILD_CFLAGS	+=
 ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
 KBUILD_CPPFLAGS	+= -mbig-endian
 AS		+= -EB
