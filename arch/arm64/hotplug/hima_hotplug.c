@@ -30,7 +30,7 @@
 #define HIMA_HOTPLUG_MINOR_VERSION     	0
 
 #define DEF_SAMPLING_MS                	300
-#define RESUME_SAMPLING_MS             	60
+#define RESUME_SAMPLING_MS             	100
 #define START_DELAY_MS                 	10000
 
 #define DEFAULT_MIN_CPUS_ONLINE        	4
@@ -72,7 +72,7 @@ static unsigned int cpu_nr_run_threshold = CPU_NR_THRESHOLD;
 
 /* Profile Tuning */
 static unsigned int nr_run_thresholds_balanced[] = {
-	93, 109, 125, 167, UINT_MAX
+	12, 35, 53, 71, UINT_MAX
 };
 
 static unsigned int nr_run_thresholds_disable[] = {
@@ -93,11 +93,11 @@ static unsigned int calculate_thread_stats(void)
 
 	threshold_size = ARRAY_SIZE(nr_run_thresholds_balanced);
 
-	for (nr_run = min_cpus_online; nr_run < threshold_size; nr_run++) {
-		unsigned int nr_threshold;
-		nr_threshold = current_profile[nr_run];
+	for (nr_run = min_cpus_online; (nr_run < threshold_size) - min_cpus_online; nr_run++) {
+ 		unsigned int nr_threshold;
+		nr_threshold = current_profile[nr_run - min_cpus_online];
 
-		if ((avg_nr_run <= (nr_threshold << (FSHIFT - nr_fshift))) || nr_run >= max_cpus_online)
+		if (avg_nr_run <= (nr_threshold << (FSHIFT - nr_fshift)) || nr_run >= max_cpus_online)
 			break;
 	}
 
