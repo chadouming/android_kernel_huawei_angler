@@ -324,7 +324,11 @@ $(srctree)/scripts/Kbuild.include: ;
 include $(srctree)/scripts/Kbuild.include
 
 # Set optimization flags for gcc
-FLAGS := -march=armv8-a+crypto -mtune=cortex-a57.cortex-a53 -mcpu=cortex-a57.cortex-a53+crypto -mlow-precision-recip-sqrt -mlow-precision-sqrt -mlow-precision-div -mpc-relative-literal-loads -ffast-math -O3 -fgraphite -fgraphite-identity -floop-strip-mine -fmodulo-sched-allow-regmoves -ftree-loop-vectorize -ftree-slp-vectorize -fvect-cost-model -fsingle-precision-constant -fpredictive-commoning -Wno-maybe-uninitialized
+FLAGS := -mtune=cortex-a57.cortex-a53 -mcpu=cortex-a57.cortex-a53 -mlow-precision-recip-sqrt -mpc-relative-literal-loads \
+	 -ffast-math -O3 -fgraphite -fgraphite-identity -floop-strip-mine -fmodulo-sched-allow-regmoves -ftree-loop-vectorize \
+	 -ftree-slp-vectorize -fvect-cost-model -fsingle-precision-constant -fpredictive-commoning -Wno-maybe-uninitialized \
+	 -fgcse-las -fgraphite -floop-flatten -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-block -pipe \
+	 -g0 -DNDEBUG -fomit-frame-pointer -funswitch-loops -Wno-misleading-indentation
 
 # Make variables (CC, etc...)
 
@@ -348,15 +352,13 @@ CHECK		= sparse
 # warnings and causes the build to stop upon encountering them.
 # CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 
-GRAPHITE	= -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -floop-flatten
-
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-CFLAGS_MODULE   = $(GRAPHITE)
-AFLAGS_MODULE   = $(GRAPHITE)
+CFLAGS_MODULE   =
+AFLAGS_MODULE   =
 LDFLAGS_MODULE  = --strip-debug
-CFLAGS_KERNEL	= $(GRAPHITE)
-AFLAGS_KERNEL	= $(GRAPHITE)
+CFLAGS_KERNEL	=
+AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 # Use USERINCLUDE when you must reference the UAPI directories only.
@@ -382,7 +384,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks
+		   -fno-delete-null-pointer-checks -std=gnu89
 
 KBUILD_AFLAGS_KERNEL := $(GEN_OPT_FLAGS)
 KBUILD_CFLAGS_KERNEL := $(GEN_OPT_FLAGS)
